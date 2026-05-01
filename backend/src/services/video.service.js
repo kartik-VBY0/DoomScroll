@@ -1,0 +1,3 @@
+exports.fetchVideoFeed = async () => {
+  return [];
+};

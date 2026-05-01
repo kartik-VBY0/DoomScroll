@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS users (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  auth_provider TEXT NOT NULL DEFAULT 'local',
+  google_sub TEXT UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider TEXT NOT NULL DEFAULT 'local';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS google_sub TEXT UNIQUE;
+
+CREATE TABLE IF NOT EXISTS videos (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  video_url TEXT NOT NULL,
+  thumb_url TEXT,
+  caption TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS likes (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  video_id BIGINT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, video_id)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  video_id BIGINT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_videos_created_at ON videos (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_likes_video_id ON likes (video_id);
+CREATE INDEX IF NOT EXISTS idx_comments_video_id ON comments (video_id);

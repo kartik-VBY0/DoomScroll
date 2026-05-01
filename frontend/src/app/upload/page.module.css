@@ -1,0 +1,366 @@
+:root {
+  --upload-bg: #0a0f1f;
+  --upload-ink: #f5f7ff;
+  --upload-muted: rgba(245, 247, 255, 0.65);
+  --upload-card: rgba(18, 26, 48, 0.78);
+  --upload-border: rgba(124, 150, 255, 0.2);
+  --upload-accent: #ff8b6a;
+  --upload-accent-2: #6ae3ff;
+}
+
+.page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, rgba(106, 227, 255, 0.2), transparent 40%),
+    radial-gradient(circle at 20% 80%, rgba(255, 139, 106, 0.18), transparent 45%),
+    linear-gradient(180deg, #070c18 0%, #030510 65%);
+  color: var(--upload-ink);
+  display: grid;
+  place-items: center;
+  padding: 5rem 1.5rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: -20% 10% auto 10%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12), transparent 55%);
+  filter: blur(60px);
+  opacity: 0.7;
+  animation: glowPulse 10s ease-in-out infinite;
+}
+
+.shell {
+  width: min(1100px, 100%);
+  display: grid;
+  gap: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.titleBlock {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 0.75rem;
+  color: var(--upload-muted);
+}
+
+.title {
+  font-size: clamp(2.4rem, 3.6vw, 3.4rem);
+  font-weight: 700;
+}
+
+.subtitle {
+  max-width: 560px;
+  color: var(--upload-muted);
+  line-height: 1.6;
+}
+
+.stats {
+  display: grid;
+  gap: 0.5rem;
+  text-align: right;
+  font-size: 0.95rem;
+  color: var(--upload-muted);
+}
+
+.card {
+  background: var(--upload-card);
+  border: 1px solid var(--upload-border);
+  border-radius: 24px;
+  padding: clamp(1.5rem, 2vw, 2.5rem);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  display: grid;
+  gap: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 2rem;
+}
+
+.dropzone {
+  border: 2px dashed rgba(106, 227, 255, 0.4);
+  border-radius: 20px;
+  padding: 2rem;
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: linear-gradient(140deg, rgba(106, 227, 255, 0.12), rgba(255, 139, 106, 0.08));
+  position: relative;
+  overflow: hidden;
+}
+
+.dropzoneActive {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgba(255, 139, 106, 0.3);
+}
+
+.dropzone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 55%);
+  opacity: 0.5;
+  animation: shimmer 6s ease-in-out infinite;
+}
+
+.dropContent {
+  display: grid;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.dropTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.dropHint {
+  color: var(--upload-muted);
+  font-size: 0.95rem;
+}
+
+.browseButton {
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(15, 23, 42, 0.7);
+  color: var(--upload-ink);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.preview {
+  width: 100%;
+  display: grid;
+  gap: 0.9rem;
+  position: relative;
+  z-index: 1;
+}
+
+.previewVideo {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.previewMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--upload-muted);
+}
+
+.form {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--upload-muted);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(7, 12, 26, 0.7);
+  color: var(--upload-ink);
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.tag {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.85rem;
+  color: var(--upload-muted);
+  background: rgba(13, 18, 35, 0.65);
+  cursor: pointer;
+}
+
+.tagActive {
+  color: #0b0f1d;
+  border-color: transparent;
+  background: linear-gradient(120deg, rgba(255, 139, 106, 0.9), rgba(106, 227, 255, 0.9));
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.primaryButton {
+  padding: 0.85rem 1.8rem;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  color: #0b0f1d;
+  background: linear-gradient(120deg, var(--upload-accent), var(--upload-accent-2));
+  box-shadow: 0 16px 30px rgba(106, 227, 255, 0.28);
+  cursor: pointer;
+}
+
+.secondaryButton {
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: var(--upload-ink);
+  cursor: pointer;
+}
+
+.note {
+  color: var(--upload-muted);
+  font-size: 0.9rem;
+}
+
+.errorText {
+  color: #ff8ca4;
+  font-size: 0.92rem;
+}
+
+.successText {
+  color: #9ff4ff;
+  font-size: 0.92rem;
+}
+
+.progress {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(120deg, var(--upload-accent), var(--upload-accent-2));
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+.sidebar {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.panel {
+  padding: 1.2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 15, 30, 0.6);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.panelTitle {
+  font-weight: 600;
+}
+
+.list {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--upload-muted);
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@media (max-width: 960px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats {
+    text-align: left;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding-top: 4rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
