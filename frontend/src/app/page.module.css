@@ -131,6 +131,7 @@
   cursor: pointer;
 }
 
+
 .reelNav {
   display: flex;
   flex-direction: column;
@@ -189,27 +190,44 @@
   border: 1px solid rgba(133, 185, 255, 0.28);
   background: rgba(18, 30, 56, 0.9);
   color: #dfeaff;
-  border-radius: 16px;
-  padding: 0.7rem 0.85rem;
+  border-radius: 999px;
+  padding: 0.65rem 0.75rem;
   font-family: var(--font-sora), sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.3rem;
   justify-items: center;
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
-.actionPill strong {
-  font-size: 1rem;
+.actionIcon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+}
+
+.actionIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.actionCount {
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .actionPillActive {
-  background: linear-gradient(110deg, rgba(255, 92, 145, 0.9), rgba(120, 170, 255, 0.85));
-  color: #0c1024;
-  border-color: transparent;
-  box-shadow: 0 10px 22px rgba(120, 170, 255, 0.35);
+  background: rgba(18, 30, 56, 0.9);
+  color: #dfeaff;
+  border-color: rgba(133, 185, 255, 0.28);
+  box-shadow: none;
+}
+
+.actionIconActive {
+  color: #ff4b6e;
 }
 
 .commentDrawer {
@@ -354,6 +372,40 @@
 @media (max-width: 600px) {
   .page {
     padding: 0.75rem 0.65rem 1rem;
+  }
+
+  .reelShell {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .rightRail {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .actionStack {
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    gap: 0.9rem;
+    pointer-events: auto;
+    z-index: 3;
+  }
+
+  .actionPill {
+    background: transparent;
+    border: 0;
+    color: #ffffff;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .actionPillActive {
+    background: transparent;
+    border: 0;
+    color: #ffffff;
   }
 
   .videoFrame {

@@ -18,6 +18,7 @@ export default function HomePage() {
   const [isCommenting, setIsCommenting] = useState(false);
   const [commentError, setCommentError] = useState("");
   const [showComments, setShowComments] = useState(false);
+  const touchStartYRef = useRef(null);
 
   const currentReel = useMemo(() => reels[currentIndex], [reels, currentIndex]);
   const reelsCount = reels.length;
@@ -106,6 +107,53 @@ export default function HomePage() {
     setCurrentIndex((prev) => (prev - 1 + reelsCount) % reelsCount);
   }, [reelsCount]);
 
+  const handleTouchStart = useCallback((event) => {
+    const touch = event.touches?.[0];
+    touchStartYRef.current = touch ? touch.clientY : null;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (event) => {
+      const startY = touchStartYRef.current;
+      touchStartYRef.current = null;
+      if (startY === null) return;
+
+      const touch = event.changedTouches?.[0];
+      if (!touch) return;
+      const deltaY = touch.clientY - startY;
+      const threshold = 60;
+
+      if (deltaY <= -threshold) {
+        handleNext();
+      } else if (deltaY >= threshold) {
+        handlePrev();
+      }
+    },
+    [handleNext, handlePrev]
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const active = document.activeElement;
+      const isTypingTarget =
+        active &&
+        (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable);
+      if (isTypingTarget) return;
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        handleNext();
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        handlePrev();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleNext, handlePrev]);
+
   const handleTogglePlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -191,7 +239,7 @@ export default function HomePage() {
                 <p>Reel {currentIndex + 1}</p>
               </header>
 
-              <div className={styles.videoFrame}>
+              <div className={styles.videoFrame} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
                 {currentReel ? (
                   <video
                     ref={videoRef}
@@ -217,26 +265,44 @@ export default function HomePage() {
                   type="button"
                   className={`${styles.actionPill} ${isLiked ? styles.actionPillActive : ""}`}
                   onClick={handleToggleLike}
+                  aria-label="Like reel"
                 >
-                  <span>Like</span>
-                  <strong>{likeCount}</strong>
+                  <span
+                    className={`${styles.actionIcon} ${isLiked ? styles.actionIconActive : ""}`}
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" role="img" focusable="false">
+                      <path
+                        d="M12 20.25c-.3 0-.59-.11-.81-.31l-7.2-6.63A5.4 5.4 0 0 1 12 4.5a5.4 5.4 0 0 1 8.01 8.81l-7.2 6.63c-.22.2-.51.31-.81.31Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <strong className={styles.actionCount}>{likeCount}</strong>
                 </button>
                 <button
                   type="button"
                   className={`${styles.actionPill} ${showComments ? styles.actionPillActive : ""}`}
                   onClick={handleToggleComments}
+                  aria-label="Show comments"
                 >
-                  <span>Comments</span>
-                  <strong>{comments.length}</strong>
-                </button>
-              </div>
-
-              <div className={styles.reelNav}>
-                <button type="button" className={styles.navButton} onClick={handlePrev} aria-label="Previous reel">
-                  &#8593;
-                </button>
-                <button type="button" className={styles.navButton} onClick={handleNext} aria-label="Next reel">
-                  &#8595;
+                  <span className={styles.actionIcon} aria-hidden="true">
+                    <svg viewBox="0 0 24 24" role="img" focusable="false">
+                      <path
+                        d="M5 18.5a2.5 2.5 0 0 1-2.5-2.5V7A2.5 2.5 0 0 1 5 4.5h14A2.5 2.5 0 0 1 21.5 7v7A2.5 2.5 0 0 1 19 16.5H9.5L6.2 19.6a.9.9 0 0 1-1.2-.02.9.9 0 0 1-.25-.62v-.46Z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <strong className={styles.actionCount}>{comments.length}</strong>
                 </button>
               </div>
             </aside>
