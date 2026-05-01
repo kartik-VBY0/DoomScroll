@@ -32,6 +32,36 @@ export default function Navbar() {
     router.push("/auth/login");
   };
 
+  const handleDownloadReel = async () => {
+    const reel = typeof window !== "undefined" ? window.currentReelForDownload : null;
+    if (!reel?.url) {
+      window.alert("No reel is available to download yet.");
+      return;
+    }
+
+    try {
+      const response = await fetch(reel.url);
+      if (!response.ok) {
+        throw new Error("Unable to download reel.");
+      }
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const safeCaption = String(reel.caption || "reel")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      anchor.href = objectUrl;
+      anchor.download = `${safeCaption || "reel"}-${reel.id}.mp4`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      window.alert(error.message || "Unable to download reel.");
+    }
+  };
+
   return (
     <nav className={styles.navbar}>
       <Link href="/" className={styles.logoWrap} aria-label="Go to home">
@@ -47,7 +77,7 @@ export default function Navbar() {
             Sign In
           </Link>
         ) : null}
-        <button type="button" className={styles.btnSoft}>
+        <button type="button" className={styles.btnSoft} onClick={handleDownloadReel}>
           Download Reel
         </button>
         <Link href="/upload" className={styles.btnPrimary}>

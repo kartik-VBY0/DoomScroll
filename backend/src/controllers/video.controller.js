@@ -40,3 +40,49 @@ exports.uploadVideo = async (req, res, next) => {
     next(error);
   }
 };
+
+function getCloudinaryPublicId(videoUrl) {
+  try {
+    const url = new URL(videoUrl);
+    const parts = url.pathname.split("/").filter(Boolean);
+    const uploadIndex = parts.findIndex((part) => part === "upload");
+    if (uploadIndex === -1) return null;
+
+    const afterUpload = parts.slice(uploadIndex + 1);
+    const withoutVersion = afterUpload[0]?.startsWith("v") ? afterUpload.slice(1) : afterUpload;
+    if (!withoutVersion.length) return null;
+    const joined = withoutVersion.join("/");
+    return joined.replace(/\.[^/.]+$/, "");
+  } catch (error) {
+    return null;
+  }
+}
+
+exports.deleteVideo = async (req, res, next) => {
+  try {
+    const { videoId } = req.params;
+    const video = await videoModel.getVideoById(videoId);
+
+    if (!video) {
+      const error = new Error("Video not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (String(video.user_id) !== String(req.userId)) {
+      const error = new Error("Forbidden");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    const publicId = getCloudinaryPublicId(video.video_url);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+    }
+
+    await videoModel.deleteVideoById(videoId);
+    res.status(200).json({ message: "Video deleted" });
+  } catch (error) {
+    next(error);
+  }
+};

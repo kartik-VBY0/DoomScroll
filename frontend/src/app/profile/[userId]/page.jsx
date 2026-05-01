@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { apiRequest } from "@/lib/api";
+import useAuth from "@/hooks/useAuth";
 import styles from "./page.module.css";
 
 export default function ProfilePage() {
   const params = useParams();
   const userId = params?.userId;
+  const { user: authUser } = useAuth();
   const [user, setUser] = useState(null);
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -50,6 +53,31 @@ export default function ProfilePage() {
     return `@${user.username}`;
   }, [error, isLoading, user]);
 
+  const isOwner = useMemo(
+    () => Boolean(authUser?.id && userId && String(authUser.id) === String(userId)),
+    [authUser, userId]
+  );
+
+  const handleDelete = useCallback(
+    async (videoId) => {
+      if (!videoId || isDeleting) return;
+      const confirmed = window.confirm("Delete this reel? This cannot be undone.");
+      if (!confirmed) return;
+
+      setIsDeleting(true);
+      setError("");
+      try {
+        await apiRequest(`/api/videos/${videoId}`, { method: "DELETE" });
+        setVideos((prev) => prev.filter((video) => video.id !== videoId));
+      } catch (err) {
+        setError(err?.message || "Unable to delete reel.");
+      } finally {
+        setIsDeleting(false);
+      }
+    },
+    [isDeleting]
+  );
+
   return (
     <main className={styles.page}>
       <section className={styles.headerCard}>
@@ -81,6 +109,16 @@ export default function ProfilePage() {
                   playsInline
                   controls
                 />
+                {isOwner ? (
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() => handleDelete(video.id)}
+                    disabled={isDeleting}
+                  >
+                    Delete
+                  </button>
+                ) : null}
                 <div className={styles.reelCaption}>
                   <p>{video.caption || "Untitled reel"}</p>
                 </div>

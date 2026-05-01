@@ -30,6 +30,10 @@ export default function HomePage() {
   }, [currentIndex, reelsCount]);
 
   useEffect(() => {
+    setIsPlaying(true);
+  }, [currentIndex]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
@@ -49,6 +53,15 @@ export default function HomePage() {
     setComments([]);
     setCommentError("");
     setShowComments(false);
+
+    if (typeof window !== "undefined") {
+      window.currentReelForDownload = {
+        id: currentReel.id,
+        url: currentReel.video_url,
+        caption: currentReel.caption || "reel",
+        username: currentReel.username || currentReel.user_id || "creator",
+      };
+    }
 
     const loadComments = async () => {
       try {
@@ -74,6 +87,14 @@ export default function HomePage() {
     loadComments();
     loadLikeStatus();
   }, [currentReel]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        window.currentReelForDownload = null;
+      }
+    };
+  }, []);
 
   const handleNext = useCallback(() => {
     if (!reelsCount) return;
@@ -178,17 +199,14 @@ export default function HomePage() {
                     src={currentReel.video_url}
                     playsInline
                     preload="auto"
-                    onEnded={handleNext}
+                    loop
+                    onClick={handleTogglePlay}
                   />
                 ) : null}
 
-                <button type="button" className={styles.playToggle} onClick={handleTogglePlay}>
-                  {isPlaying ? "Pause" : "Play"}
-                </button>
-
                 <div className={styles.captionBlock}>
+                  <p>@{currentReel?.username || currentReel?.user_id || "creator"}</p>
                   <h2>{currentReel?.caption || "Untitled reel"}</h2>
-                  <p>@{currentReel?.user_id || "creator"}</p>
                 </div>
               </div>
             </article>
