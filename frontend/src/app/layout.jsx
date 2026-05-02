@@ -14,7 +14,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata = {
-  title: "Scroll",
+  title: "DoomScroll",
   description: "Short-form video platform",
 };
 

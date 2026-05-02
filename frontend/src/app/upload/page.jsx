@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { API_BASE_URL } from "@/lib/constants";
+import useAuth from "@/hooks/useAuth";
+import { loadAuthState } from "@/store/authStore";
 import styles from "./page.module.css";
 
 export default function UploadPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -14,12 +20,33 @@ export default function UploadPage() {
   const [caption, setCaption] = useState("");
   const [category, setCategory] = useState("visual");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [customTag, setCustomTag] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
 
   const suggestedTags = useMemo(() => ["#neon", "#cityscape", "#loop", "#ambient"], []);
+  const availableTags = useMemo(() => {
+    const unique = new Set([...suggestedTags, ...selectedTags]);
+    return Array.from(unique);
+  }, [selectedTags, suggestedTags]);
+
+  useEffect(() => {
+    const { token } = loadAuthState();
+    if (!token) {
+      router.replace(`/auth/login?next=${encodeURIComponent("/upload")}`);
+      return;
+    }
+    setIsCheckingAuth(false);
+  }, [router]);
+
+  useEffect(() => {
+    if (isCheckingAuth) return;
+    if (!isAuthenticated) {
+      router.replace(`/auth/login?next=${encodeURIComponent("/upload")}`);
+    }
+  }, [isAuthenticated, isCheckingAuth, router]);
 
   useEffect(() => {
     if (!file) {
@@ -73,6 +100,21 @@ export default function UploadPage() {
     setSelectedTags((current) =>
       current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag]
     );
+  };
+
+  const normalizeTag = (value) => {
+    const trimmed = value.trim();
+    if (!trimmed) return "";
+    const safe = trimmed.replace(/\s+/g, "-");
+    return safe.startsWith("#") ? safe : `#${safe}`;
+  };
+
+  const addCustomTag = () => {
+    const nextTag = normalizeTag(customTag);
+    if (!nextTag) return;
+
+    setSelectedTags((current) => (current.includes(nextTag) ? current : [...current, nextTag]));
+    setCustomTag("");
   };
 
   const validateForm = () => {
@@ -159,6 +201,10 @@ export default function UploadPage() {
   };
 
   const dropzoneClassName = `${styles.dropzone} ${isDragging ? styles.dropzoneActive : ""}`.trim();
+
+  if (isCheckingAuth) {
+    return null;
+  }
 
   return (
     <main className={styles.page}>
@@ -268,7 +314,7 @@ export default function UploadPage() {
               <div className={styles.field}>
                 <span className={styles.label}>Suggested tags</span>
                 <div className={styles.tags}>
-                  {suggestedTags.map((tag) => (
+                  {availableTags.map((tag) => (
                     <button
                       key={tag}
                       type="button"
@@ -278,6 +324,24 @@ export default function UploadPage() {
                       {tag}
                     </button>
                   ))}
+                </div>
+                <div className={styles.tagInputRow}>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={customTag}
+                    onChange={(event) => setCustomTag(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Enter") return;
+                      event.preventDefault();
+                      addCustomTag();
+                    }}
+                    placeholder="Add a custom tag"
+                    aria-label="Add a custom tag"
+                  />
+                  <button type="button" className={styles.secondaryButton} onClick={addCustomTag}>
+                    Add tag
+                  </button>
                 </div>
               </div>
 
